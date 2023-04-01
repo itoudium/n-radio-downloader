@@ -22,6 +22,7 @@ interface ProgramType {
   program_name: string
   program_name_kana: string
   site_id: string
+  corner_id: string
   start_time: string
   // thumbnail image url
   thumbnail_p: string
@@ -30,11 +31,12 @@ interface ProgramType {
 
 const PROGRAM_LIST_URL = 'https://www.nhk.or.jp/radioondemand/json/index_v3/index_genre.json'
 
-export const listupPrograms = async (): Promise<Show[]> => {
+export const getShowList = async (): Promise<Show[]> => {
   const { data } = await axios.get<ProgramListResponse>(PROGRAM_LIST_URL)
   return data.genre_list.flatMap(genre => {
     return genre.data_list.map(program => {
       return ({
+        id: `${program.site_id}_${program.corner_id}`,
         name: program.program_name,
         genre: genre.genre,
         detailUrl: program.detail_json,
@@ -73,8 +75,9 @@ export const getShowDetail = async (detailUrl: string): Promise<ShowDetailType> 
     detail: data.main.site_detail,
     schedule: data.main.schedule,
     episodes: data.main.detail_list.flatMap(detail => {
-      return detail.file_list.map(file => {
+      return detail.file_list.splice(0, 1).map(file => {
         return {
+          id: detail.headline_id,
           title: file.file_title,
           url: file.file_name
         }

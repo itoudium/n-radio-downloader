@@ -1,18 +1,19 @@
-import { Axios } from 'axios'
+import axios from 'axios'
 import fs from 'fs/promises'
 import crypto from 'crypto'
 import { AACBuilder } from './audio'
+import path from "path"
 
-const client = new Axios({
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36'
-  }
-})
+const client = axios;
+
+// timer function
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface DownloadOptions {
   // the directory to save the downloaded files
   outputDir: string
   fileName: string
+  progressFn?: (progress: number) => void
 }
 
 export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
@@ -39,13 +40,16 @@ export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
 
   const { data: key } = await client.get<Buffer>(keyUrl, { responseType: 'arraybuffer' })
 
-  const aac = new AACBuilder(`${options.outputDir}/${options.fileName}.aac`)
+  const aac = new AACBuilder(path.join(options.outputDir, `${options.fileName}.aac`))
 
+  let progress = 0;
   for (const url of urls) {
     const { data } = await client.get<Buffer>(url, { responseType: 'arraybuffer' })
-    console.log('downloaded:', url, data.byteLength)
     const decrypted = decryptBuffer(data, key, mediaSequence)
-    aac.addChunk(decrypted)
+    aac.addChunk(decrypted);
+    progress ++;
+    if (options.progressFn) options.progressFn(progress / urls.length);
+    await sleep(100);
   }
   await aac.finalize()
 }
@@ -59,7 +63,6 @@ const extractKeyUrl = (keyRow: string): string | null => {
 const decryptBuffer = (data: Buffer, key: Buffer, mediaSequence: number): Buffer => {
   // convert mediaSequence to 16 byte BigEndian Buffer
   const iv = Buffer.from(mediaSequence.toString(16).padStart(32, '0'), 'hex')
-  console.log('iv: ', iv, iv.length)
 
   // decrypt data by key with AES-128
   const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)
@@ -70,12 +73,10 @@ export const decryptoFile = async (inputPath: string, outputPath: string, keyPat
   const key = (await fs.readFile(keyPath))
   const data = await fs.readFile(inputPath)
 
-  console.log('key:', key, key.length)
 
   const mediaSequence = 1
   const iv = Buffer.alloc(16)
   iv[15] = mediaSequence
-  console.log('iv: ', iv, iv.length)
 
   // decrypt data by key with AES-128
   const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv)

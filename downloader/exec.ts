@@ -1,8 +1,8 @@
 // sample execution driver
 import { downloadByM3U8 } from './lib/downloader'
-import { getShowDetail, listupPrograms as listupShows } from './lib/show'
+import { getShowDetail, getShowList } from './lib/show'
 
-listupShows().then(shows => {
+getShowList().then(shows => {
   console.log(shows)
   const show = shows.find(x => x.name === 'ラジオ英会話')
   if (show != null) {

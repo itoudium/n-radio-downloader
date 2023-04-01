@@ -133,3 +133,5 @@ dist
 .pnp.*
 
 
+app/temp/
+

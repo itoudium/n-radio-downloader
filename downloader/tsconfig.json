@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/recommended/tsconfig.json",
+  "compilerOptions": {
+    // 参照されるprojectは、compositeをtrueにする必要がある
+    "composite": true,
+    "outDir": "dist",
+    "declaration": true,
+  }
+}

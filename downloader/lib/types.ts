@@ -1,5 +1,6 @@
 
 export interface Show {
+  id: string
   name: string
   genre: string
   detailUrl: string
@@ -15,6 +16,7 @@ export interface ShowDetailType {
 }
 
 export interface Episode {
+  id: string;
   title: string
   // the m3u8 file url
   url: string
