@@ -79,6 +79,7 @@ export const getShowDetail = async (detailUrl: string): Promise<ShowDetailType> 
         return {
           id: detail.headline_id,
           title: file.file_title,
+          onAirDate: file.onair_date,
           url: file.file_name
         }
       })

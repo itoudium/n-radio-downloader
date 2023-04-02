@@ -38,9 +38,9 @@ export const ShowDetail = ({ show }: Props) => {
         </Box>
         <Box>
           {selected ? (
-            <Button onClick={() => checkChanged(false)}>unselect</Button>
+            <Button onClick={() => checkChanged(false)}>解除</Button>
           ) : (
-            <Button onClick={() => checkChanged(true)}>select</Button>
+            <Button onClick={() => checkChanged(true)}>選択</Button>
           )}
         </Box>
         <Box flexBasis={10}>

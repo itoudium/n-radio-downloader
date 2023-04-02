@@ -7,6 +7,7 @@ const useAppHook = () => {
   const [showList, setShowList] = useState<Show[]>([]);
   const [downloadTarget, setDownloadTarget] = useState<DownloadTargets>({})
   const [queue, setQueue] = useState<DownloadQueueItem[]>([]);
+  const [isLoadingShowList, setIsLoadingShowList] = useState(false);
 
   // state handler
   useEffect(() => {
@@ -15,6 +16,14 @@ const useAppHook = () => {
       console.log(state);
       setShowList(state.showList);
       setDownloadTarget(state.downloadTarget);
+    
+      // show list is loading
+      if ((state.showList|| []).length === 0) {
+        window.Main.send("updateShowList");
+        setIsLoadingShowList(true);
+      } else {
+        setIsLoadingShowList(false);
+      }
     };
 
     window.Main.on("appStateUpdated", callback);
@@ -36,6 +45,7 @@ const useAppHook = () => {
 
   const updateShowList = () => {
     window.Main.send("updateShowList");
+    setIsLoadingShowList(true);
   }
 
   const updateDownloadTarget = (id: string, isTarget: boolean) => {
@@ -44,6 +54,7 @@ const useAppHook = () => {
 
   return {
     showList,
+    isLoadingShowList,
     updateShowList,
     downloadTarget,
     updateDownloadTarget,

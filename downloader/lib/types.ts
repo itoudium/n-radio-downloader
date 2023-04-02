@@ -17,7 +17,8 @@ export interface ShowDetailType {
 
 export interface Episode {
   id: string;
-  title: string
+  title: string;
+  onAirDate: string;
   // the m3u8 file url
   url: string
 }

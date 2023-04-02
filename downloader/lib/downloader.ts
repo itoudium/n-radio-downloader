@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 import fs from 'fs/promises'
 import crypto from 'crypto'
 import { AACBuilder } from './audio'
@@ -14,11 +14,19 @@ interface DownloadOptions {
   outputDir: string
   fileName: string
   progressFn?: (progress: number) => void
+  canceler?: (cancelable: CancelTokenSource) => void
 }
 
 export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
+  const cancelSource = client.CancelToken.source()
+  if (options.canceler) {
+    options.canceler(cancelSource);
+  }
+
+  // download m3u8 file
   const { data } = await client.get<string>(url, {
-    responseType: 'text'
+    responseType: 'text',
+    cancelToken: cancelSource.token
   })
   const nextUrl = data.split('\n').filter(x => x.match('m3u8'))[0]
   if (!nextUrl) {
@@ -26,29 +34,46 @@ export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
     return null
   }
   const nextUrlAbs = new URL(nextUrl, url).href
-  const { data: nextData } = await client.get<string>(nextUrlAbs, { responseType: 'text' })
+
+  // download second m3u8 file
+  const { data: nextData } = await client.get<string>(nextUrlAbs, {
+    responseType: 'text',
+    cancelToken: cancelSource.token
+  })
   const urls = nextData.split('\n').filter(x => !x.startsWith('#') && x.match('aac')).map(x => new URL(x, url).href)
   const keyRow = nextData.split('\n').find(x => x.startsWith('#EXT-X-KEY'))
   const mediaSequenceRow = nextData.split('\n').find(x => x.startsWith('#EXT-X-MEDIA-SEQUENCE'))
   if (!mediaSequenceRow) throw new Error('no media sequence found')
   const mediaSequence = parseInt(mediaSequenceRow.split(':')[1])
 
-  if (!keyRow) throw new Error('no key found')
+  // download key file
 
+  if (!keyRow) throw new Error('no key found')
+  
   const keyUrl = extractKeyUrl(keyRow)
   if (!keyUrl) throw new Error('invalid key row')
 
-  const { data: key } = await client.get<Buffer>(keyUrl, { responseType: 'arraybuffer' })
+  const { data: key } = await client.get<Buffer>(keyUrl, {
+    responseType: 'arraybuffer',
+    cancelToken: cancelSource.token
+  })
+
+  // build aac file
 
   const aac = new AACBuilder(path.join(options.outputDir, `${options.fileName}.aac`))
-
   let progress = 0;
+
   for (const url of urls) {
-    const { data } = await client.get<Buffer>(url, { responseType: 'arraybuffer' })
+    const { data } = await client.get<Buffer>(url, {
+      responseType: 'arraybuffer',
+      cancelToken: cancelSource.token
+    })
     const decrypted = decryptBuffer(data, key, mediaSequence)
     aac.addChunk(decrypted);
     progress++;
-    if (options.progressFn) options.progressFn(progress / urls.length);
+    if (options.progressFn) {
+      options.progressFn(progress / urls.length);
+    }
     await sleep(100);
   }
   await aac.finalize()

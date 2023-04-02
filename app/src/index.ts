@@ -72,7 +72,7 @@ const createWindow = async (): Promise<void> => {
     Store.appState.showList = showList;
     appStateUpdated(Store.appState);
     Repository.saveAppState(Store.appState);
-    
+
     eventBus.emit(EventBusType.showListUpdated, Store.appState.showList);
     eventBus.emit(EventBusType.checkAllEpisodes);
   })
@@ -85,12 +85,16 @@ const createWindow = async (): Promise<void> => {
     eventBus.emit(EventBusType.downloadTargetUpdated, Store.appState.downloadTarget);
   });
 
-  ipcMain.on("ready", () => {    
+  ipcMain.on("ready", () => {
     appStateUpdated(Store.appState);
-    Store.queue = queueManager.queue;
+    Store.queue = queueManager.getQueue();
     queueUpdated(Store.queue);
     eventBus.emit(EventBusType.showListUpdated, Store.appState.showList);
     eventBus.emit(EventBusType.downloadTargetUpdated, Store.appState.downloadTarget);
+  })
+
+  ipcMain.on("downloadCancel", (_, episodeId: string) => {
+    eventBus.emit(EventBusType.downloadCancel, episodeId);
   })
 
   eventBus.on(EventBusType.queueUpdated, (queue) => {
@@ -106,10 +110,18 @@ const createWindow = async (): Promise<void> => {
   });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+
+// single instance lock
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.exit();
+} else {
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on('ready', createWindow)
+}
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

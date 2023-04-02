@@ -30,6 +30,10 @@ export class QueueManager {
     eventBus.on(EventBusType.episodeAdded, (episode: Episode, show: Show) => {
       this.addEpisode(episode, show);
     });
+
+    eventBus.on(EventBusType.downloadCancel, (episodeId: string) => {
+      this.removeEpisode(episodeId);
+    });
   }
 
   setBaseDir(baseDir: string) {
@@ -42,6 +46,12 @@ export class QueueManager {
 
   saveQueue() {
     Repository.saveDownloadQueueState({ queue: this.queue });
+  }
+
+  private removeEpisode(episodeId: string) {
+    this.queue = this.queue.filter(e => e.episode.id !== episodeId);
+    this.saveQueue();
+    eventBus.emit(EventBusType.queueUpdated, this.queue); 
   }
 
   private addEpisode(episode: Episode, show: Show) {
@@ -58,6 +68,7 @@ export class QueueManager {
         downloading: false,
       });
       this.saveQueue();
+      eventBus.emit(EventBusType.queueUpdated, this.queue);
     }
   }
 
@@ -78,7 +89,14 @@ export class QueueManager {
             fileName: `${queueItem.episode.id} ${escapeFileName(queueItem.episode.title)}`,
             progressFn: (progress) => {
               eventBus.emit(EventBusType.downloadProgress, queueItem.episode.id, progress);
-            }
+            },
+            canceler(cancelable) {
+              eventBus.on(EventBusType.downloadCancel, (episodeId) => {
+                if (episodeId === queueItem.episode.id) {
+                  cancelable.cancel();
+                }
+              });
+            },
           })
           queueItem.finished = true;
           console.log(`Finished : ${queueItem.episode.id} ${queueItem.episode.title}`)
@@ -92,7 +110,7 @@ export class QueueManager {
           this.saveQueue();
         }
       }
-      await sleep(10_000);
+      await sleep(5_000);
     }
   }
 }

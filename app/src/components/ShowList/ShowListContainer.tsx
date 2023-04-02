@@ -1,11 +1,22 @@
-import { Box, Heading, Spinner, Stack, StackDivider } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Spinner,
+  Stack,
+  StackDivider,
+} from "@chakra-ui/react";
 import { useAppContext } from "../../hooks/appHook";
 import { ShowDetail } from "./ShowDetail";
 
 export const ShowListContainer: React.FC = () => {
-  const { showList } = useAppContext();
-  if (!showList) {
-    return <Spinner />;
+  const { showList, isLoadingShowList } = useAppContext();
+  if (isLoadingShowList) {
+    return (
+      <Flex justifyContent="center">
+        <Spinner />
+      </Flex>
+    );
   }
   return (
     <Box>

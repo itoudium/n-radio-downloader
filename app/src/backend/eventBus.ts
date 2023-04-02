@@ -3,11 +3,16 @@ import Event from "events";
 export const eventBus = new Event();
 
 export enum EventBusType {
-  checkAllEpisodes = "checkAllEpisodes",
   showListUpdated = "showListUpdated",
   downloadTargetUpdated = "downloadTargetUpdated",
-  downloadProgress = "downloadProgress",
+  
+  // episode observer
+  checkAllEpisodes = "checkAllEpisodes",
   episodeAdded = "episodeAdded",
-  queueUpdated = "queueUpdated",
   episodeChecking = "episodeChecking",
+  
+  // queue manager
+  queueUpdated = "queueUpdated",
+  downloadProgress = "downloadProgress",
+  downloadCancel = "downloadCancel",
 }
