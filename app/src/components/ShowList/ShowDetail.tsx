@@ -1,7 +1,7 @@
-import { Box, Button, Checkbox, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Checkbox, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
 import { useAppContext } from "@hooks/appHook";
 import { Show } from "@n-radio-downloader/downloader/dist/lib/types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   show: Show;
@@ -10,29 +10,43 @@ type Props = {
 export const ShowDetail = ({ show }: Props) => {
   const { downloadTarget, updateDownloadTarget } = useAppContext();
 
-  const selected = useMemo(() => (downloadTarget ?? {})[show.id], [downloadTarget]);
+  const selected = useMemo(
+    () => (downloadTarget ?? {})[show.id],
+    [downloadTarget]
+  );
 
   const checkChanged = (checked: boolean) => {
     updateDownloadTarget(show.id, checked);
   };
 
+  // receive isChecking status from main process
+  const [isChecking, setIsChecking] = useState(false);
+  useEffect(() => {
+    const callback = (_, isChecking: boolean) => {
+      setIsChecking(isChecking);
+    };
+    window.Main.on(`episodeChecking:${show.id}`, callback);
+    return () => window.Main.off(`episodeChecking:${show.id}`, callback);
+  }, [show.id]);
+
   return (
     <Box>
-      <Flex>
-        <Box>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Box flexGrow={1}>
+          <Text fontSize="xs">{show.genre}</Text>
           <Text>{show.name}</Text>
-          <Text>{show.genre}</Text>
         </Box>
         <Box>
-          {
-            selected ? 
-            (
-              <Button onClick={() => checkChanged(false)}>unselect</Button>
-            ):
-            (
-              <Button onClick={() => checkChanged(true)}>select</Button>
-            )
-          }
+          {selected ? (
+            <Button onClick={() => checkChanged(false)}>unselect</Button>
+          ) : (
+            <Button onClick={() => checkChanged(true)}>select</Button>
+          )}
+        </Box>
+        <Box flexBasis={10}>
+          {isChecking && (
+            <Spinner size="xs" />
+          )}
         </Box>
       </Flex>
     </Box>

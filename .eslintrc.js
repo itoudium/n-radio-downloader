@@ -6,11 +6,6 @@ module.exports = {
   },
   extends: ['plugin:react/recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/jsx-runtime'],
   overrides: [],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: './tsconfig.json'
-  },
   plugins: ['react', '@typescript-eslint'],
   rules: {
     'no-constant-condition': 'off',

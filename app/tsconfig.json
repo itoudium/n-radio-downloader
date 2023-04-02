@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "jsx": "react-jsx",
     "lib": ["dom", "es2021"],
+    "composite": true,
     "paths": {
       "@components/*": ["./src/components/*"],
       "@hooks/*": ["./src/hooks/*"],

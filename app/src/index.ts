@@ -13,9 +13,7 @@ import { Repository } from './backend/repository';
 
 import { eventBus, EventBusType } from './backend/eventBus';
 import { EpisodeObserver } from "./backend/episodeObserver";
-const episodeObserver = new EpisodeObserver();
 import { QueueManager } from "./backend/queueManager";
-const queueManager = new QueueManager();
 
 // Store.initRenderer();
 
@@ -48,6 +46,8 @@ const createWindow = async (): Promise<void> => {
   // load appState from repository
   Store.appState = Repository.getAppState() || initialAppState();
 
+  const episodeObserver = new EpisodeObserver();
+  const queueManager = new QueueManager();
 
   //
   // event handlers
@@ -67,11 +67,14 @@ const createWindow = async (): Promise<void> => {
 
   ipcMain.on("updateShowList", async () => {
     console.log("updateShowList")
+
     const showList = await getShowList();
     Store.appState.showList = showList;
     appStateUpdated(Store.appState);
     Repository.saveAppState(Store.appState);
+    
     eventBus.emit(EventBusType.showListUpdated, Store.appState.showList);
+    eventBus.emit(EventBusType.checkAllEpisodes);
   })
 
   ipcMain.on("updateDownloadTarget", (event, id: string, isTarget: boolean) => {
@@ -82,7 +85,7 @@ const createWindow = async (): Promise<void> => {
     eventBus.emit(EventBusType.downloadTargetUpdated, Store.appState.downloadTarget);
   });
 
-  ipcMain.on("ready", () => {
+  ipcMain.on("ready", () => {    
     appStateUpdated(Store.appState);
     Store.queue = queueManager.queue;
     queueUpdated(Store.queue);
@@ -94,6 +97,13 @@ const createWindow = async (): Promise<void> => {
     queueUpdated(queue);
   });
 
+  eventBus.on(EventBusType.downloadProgress, (episodeId, progress) => {
+    mainWindow.webContents.send(`downloadProgress:${episodeId}`, progress);
+  })
+
+  eventBus.on(EventBusType.episodeChecking, (showId, isChecking) => {
+    mainWindow.webContents.send(`episodeChecking:${showId}`, isChecking);
+  });
 }
 
 // This method will be called when Electron has finished

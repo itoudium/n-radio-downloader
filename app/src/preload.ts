@@ -7,10 +7,10 @@ export const api = {
   send: (message: string, ...args: any[]) => {
     ipcRenderer.send(message, ...args)
   },
-  on: (channel: string, callback: (event: IpcRendererEvent, data: Array<any>) => void) => {
+  on: (channel: string, callback: (event: IpcRendererEvent, ...data: Array<any>) => void) => {
     ipcRenderer.on(channel, callback)
   },
-  off: (channel: string, callback: (event: IpcRendererEvent, data: Array<any>) => void) => {
+  off: (channel: string, callback: (event: IpcRendererEvent, ...data: Array<any>) => void) => {
     ipcRenderer.off(channel, callback)
   },
   getAppState: (): Promise<AppStateType> => ipcRenderer.invoke('getAppState')

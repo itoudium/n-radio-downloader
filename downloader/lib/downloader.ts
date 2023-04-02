@@ -47,7 +47,7 @@ export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
     const { data } = await client.get<Buffer>(url, { responseType: 'arraybuffer' })
     const decrypted = decryptBuffer(data, key, mediaSequence)
     aac.addChunk(decrypted);
-    progress ++;
+    progress++;
     if (options.progressFn) options.progressFn(progress / urls.length);
     await sleep(100);
   }

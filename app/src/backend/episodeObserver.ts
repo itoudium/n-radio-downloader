@@ -43,6 +43,7 @@ export class EpisodeObserver {
           e => e.show.id === show.id
         );
         if (!episodeCheckerExists) {
+          console.log("new episode checker added:", show.name);
           const episodeChecker = new EpisodeChecker(show);
           episodeChecker.checkEpisode();
           this.episodeCheckers.push(episodeChecker);
@@ -81,7 +82,10 @@ class EpisodeChecker {
 
   async checkEpisode() {
     console.log(`Checking episode for ${this.show.name} ...`)
+    
     try {
+      eventBus.emit(EventBusType.episodeChecking, this.show.id, true);
+
       const showDetail = await getShowDetail(this.show.detailUrl);
       const { episodes } = showDetail
       // add episodes to this.episodes if not exist
@@ -97,6 +101,7 @@ class EpisodeChecker {
       }
     } finally {
       this.lastCheckedAt = new Date();
+      eventBus.emit(EventBusType.episodeChecking, this.show.id, false);
     }
   }
 }

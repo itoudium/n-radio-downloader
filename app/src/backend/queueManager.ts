@@ -9,6 +9,10 @@ import { eventBus, EventBusType } from "./eventBus";
 // sleep
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+function escapeFileName(fileName: string): string {
+  const escapeChars = /[\x00-\x1f\x7f\\/:*?"<>|]/g;
+  return fileName.replace(escapeChars, '_');
+}
 export class QueueManager {
 
   queue: DownloadQueueItem[] = [];
@@ -67,13 +71,13 @@ export class QueueManager {
           console.log(`Downloading ... ${queueItem.episode.id} ${queueItem.episode.title}`);
           queueItem.downloading = true;
           eventBus.emit(EventBusType.queueUpdated, this.queue);
-          const outputDir = path.join(this.baseDir, queueItem.show.name);
+          const outputDir = path.join(this.baseDir, escapeFileName(queueItem.show.name));
           await fs.mkdir(outputDir, { recursive: true });
           await downloadByM3U8(queueItem.episode.url, {
             outputDir,
-            fileName: `${queueItem.episode.id} ${queueItem.episode.title}`,
+            fileName: `${queueItem.episode.id} ${escapeFileName(queueItem.episode.title)}`,
             progressFn: (progress) => {
-              console.log(progress, "%")
+              eventBus.emit(EventBusType.downloadProgress, queueItem.episode.id, progress);
             }
           })
           queueItem.finished = true;
