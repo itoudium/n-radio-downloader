@@ -54,9 +54,15 @@ const createWindow = async (): Promise<void> => {
 
 
   // load appState from repository
-  Store.appState = Repository.getAppState() || initialAppState({
-    downloadDirectory: app.getPath('downloads'),
-  });
+  Store.appState = Repository.getAppState();
+
+  // initialize appState
+  if (typeof Store.appState.showList !== "object") {
+    Store.appState = initialAppState({
+      downloadDirectory: app.getPath('downloads'),
+    });
+  }
+
 
   const episodeObserver = new EpisodeObserver();
   const queueManager = new QueueManager(Store.appState.downloadDirectory);
@@ -116,18 +122,18 @@ const createWindow = async (): Promise<void> => {
 
   ipcMain.on("applyConfig", (_, options) => {
     console.log("applyConfig", options);
-    const {downloadDirectory, selectedGenre, isFilteredDownloadTarget} = options;
+    const { downloadDirectory, selectedGenre, isFilteredDownloadTarget } = options;
     if (downloadDirectory) {
       Store.appState.downloadDirectory = downloadDirectory;
       queueManager.setBaseDir(Store.appState.downloadDirectory);
     }
-    if (selectedGenre) {
+    if (typeof selectedGenre !== undefined) {
       Store.appState.selectedGenre = selectedGenre;
     }
     if (isFilteredDownloadTarget !== undefined) {
       Store.appState.isFilteredDownloadTarget = isFilteredDownloadTarget;
     }
-    
+
     appStateUpdated(Store.appState);
     Repository.saveAppState(Store.appState);
   })
