@@ -17,7 +17,6 @@ Please note that this project is unofficial, so I cannot guarantee its functiona
 ## Other features
 
 - Can also be used as a standalone library.
-- Does not depend on ffmpeg
 - Selectable download directory
 
 # instruction
@@ -42,6 +41,11 @@ npm run build -w downloader
 npm run start -w app
 ```
 
-## Build
+## Build the Electron app
+
+```bash
+npm run make:win -w downloader
+npm run make:mac -w downloader
+```
 
 
