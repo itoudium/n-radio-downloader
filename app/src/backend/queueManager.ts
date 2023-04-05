@@ -9,6 +9,9 @@ import { eventBus, EventBusType } from "./eventBus";
 // sleep
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// queue limit
+const QueueLimit = 1_000;
+
 function escapeFileName(fileName: string): string {
   const escapeChars = /[\x00-\x1f\x7f\\/:*?"<>|]/g;
   return fileName.replace(escapeChars, '_');
@@ -18,8 +21,7 @@ export class QueueManager {
   queue: DownloadQueueItem[] = [];
   baseDir: string;
 
-  // TODO: baseDir should be set by user
-  constructor(baseDir = "temp") {
+  constructor(baseDir: string) {
     this.queue = Repository.getDownloadQueueState().queue || [];
     this.baseDir = baseDir;
 
@@ -45,7 +47,7 @@ export class QueueManager {
   }
 
   saveQueue() {
-    Repository.saveDownloadQueueState({ queue: this.queue });
+    Repository.saveDownloadQueueState({ queue: [...this.queue].splice(-1 * QueueLimit) });
   }
 
   private removeEpisode(episodeId: string) {
@@ -106,6 +108,7 @@ export class QueueManager {
           console.log(`download error : ${queueItem.episode.id} ${queueItem.episode.title}`)
           console.error(e);
         } finally {
+          queueItem.updatedAt = new Date().toISOString();
           eventBus.emit(EventBusType.queueUpdated, this.queue);
           this.saveQueue();
         }

@@ -1,8 +1,26 @@
 # n-radio-downloader (WIP)
 
 Save NHK Radio shows locally.
-It consists of a simple, less depenency Node.js library and an Electron app.
-Electron app provides portability and GUI.
+
+This project consists of a simple, lightweight Node.js library and an Electron app that provides portability and a GUI.
+
+Please note that this project is unofficial, so I cannot guarantee its functionality.
+
+# Features
+
+- The app is designed specifically to download radio streams, not to function as a radio player.
+- Browse and list radio shows.
+- Follow your favorite radio shows.
+- Automatic detection of new episodes.
+- Automatic download of radio episodes.
+
+## Other features
+
+- Can also be used as a standalone library.
+- Does not depend on ffmpeg
+- Selectable download directory
+
+# instruction
 
 ## installation
 
@@ -24,5 +42,6 @@ npm run build -w downloader
 npm run start -w app
 ```
 
+## Build
 
 

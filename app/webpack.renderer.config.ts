@@ -12,7 +12,6 @@ rules.push({
 
 export const rendererConfig: Configuration = {
   target: 'web',
-  // entry: './src/renderer.ts',
   module: {
     rules,
   },

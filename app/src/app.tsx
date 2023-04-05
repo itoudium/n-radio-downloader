@@ -1,17 +1,33 @@
-import * as ReactDOM from "react-dom";
-import { ChakraProvider } from "@chakra-ui/react";
+import { createRoot } from "react-dom/client";
+import {
+  ChakraProvider,
+  ColorModeScript,
+  extendTheme,
+  ThemeConfig,
+} from "@chakra-ui/react";
 import { FlameContainer } from "./components/FlameContainer";
 import { AppProvider } from "@hooks/appHook";
 
-function render() {
-  ReactDOM.render(
+const config: ThemeConfig = {
+  initialColorMode: "dark",
+  useSystemColorMode: false,
+};
+
+const theme = extendTheme({ config });
+
+const App = () => {
+  return (
     <AppProvider>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <FlameContainer />
       </ChakraProvider>
-    </AppProvider>,
-    document.body
+    </AppProvider>
   );
-}
+};
 
-render();
+createRoot(document.getElementById("app")).render(
+  <>
+    <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+    <App />
+  </>
+);

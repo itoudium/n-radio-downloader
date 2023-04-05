@@ -13,7 +13,9 @@ export const api = {
   off: (channel: string, callback: (event: IpcRendererEvent, ...data: Array<any>) => void) => {
     ipcRenderer.off(channel, callback)
   },
-  getAppState: (): Promise<AppStateType> => ipcRenderer.invoke('getAppState')
+  getAppState: (): Promise<AppStateType> => ipcRenderer.invoke('getAppState'),
+
+  openDirectory: (): Promise<string> => ipcRenderer.invoke('openDirectory')
 }
 
 contextBridge.exposeInMainWorld('Main', api)

@@ -23,6 +23,7 @@ interface ProgramType {
   program_name_kana: string
   site_id: string
   corner_id: string
+  corner_name: string
   start_time: string
   // thumbnail image url
   thumbnail_p: string
@@ -31,17 +32,24 @@ interface ProgramType {
 
 const PROGRAM_LIST_URL = 'https://www.nhk.or.jp/radioondemand/json/index_v3/index_genre.json'
 
+const getSiteUrl = (id: string) => {
+  return `https://www.nhk.or.jp/radio/ondemand/detail.html?p=${id}`
+}
+
 export const getShowList = async (): Promise<Show[]> => {
   const { data } = await axios.get<ProgramListResponse>(PROGRAM_LIST_URL)
   return data.genre_list.flatMap(genre => {
     return genre.data_list.map(program => {
+      const id = [program.site_id, program.corner_id].filter(x=> x).join("_");
+      const name = [program.program_name, program.corner_name].filter(x=> x).join(" ");
       return ({
-        id: `${program.site_id}_${program.corner_id}`,
-        name: program.program_name,
+        id,
+        name,
         genre: genre.genre,
         detailUrl: program.detail_json,
         thumbnailUrl: program.thumbnail_p,
-        onAirDate: program.onair_date
+        onAirDate: program.onair_date,
+        siteUrl: getSiteUrl(id),
       })
     })
   })

@@ -17,13 +17,13 @@ export const QueueContainer: React.FC = () => {
 
   return (
     <Box>
-      <Heading size="sm">ダウンロード待ち</Heading>
+      <Heading size="sm" marginY={6}>ダウンロード待ち</Heading>
       <Stack divider={<StackDivider></StackDivider>}>
         {downloading.map((item, i) => (
           <QueueItemContainer key={i} item={item} />
         ))}
       </Stack>
-      <Heading size="sm" marginTop={5}>ダウンロード済み</Heading>
+      <Heading size="sm" marginY={6}>ダウンロード済み</Heading>
       <Stack divider={<StackDivider></StackDivider>}>
         {downloaded.map((item, i) => (
           <QueueItemContainer key={i} item={item} />

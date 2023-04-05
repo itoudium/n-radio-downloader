@@ -1,7 +1,18 @@
-import { Box, Button, Checkbox, Flex, Heading, Spinner, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Flex,
+  Heading,
+  Link,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
+import { ExternalLinkIcon } from "@chakra-ui/icons";
 import { useAppContext } from "@hooks/appHook";
 import { Show } from "@n-radio-downloader/downloader/dist/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   show: Show;
@@ -10,10 +21,7 @@ type Props = {
 export const ShowDetail = ({ show }: Props) => {
   const { downloadTarget, updateDownloadTarget } = useAppContext();
 
-  const selected = useMemo(
-    () => (downloadTarget ?? {})[show.id],
-    [downloadTarget]
-  );
+  const selected = (downloadTarget ?? {})[show.id];
 
   const checkChanged = (checked: boolean) => {
     updateDownloadTarget(show.id, checked);
@@ -29,26 +37,41 @@ export const ShowDetail = ({ show }: Props) => {
     return () => window.Main.off(`episodeChecking:${show.id}`, callback);
   }, [show.id]);
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <Box>
+    <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <Box flexGrow={1}>
           <Text fontSize="xs">{show.genre}</Text>
           <Text>{show.name}</Text>
+          <Link href={show.siteUrl} display="flex" alignItems="center">
+            <ExternalLinkIcon marginRight={1} />
+            web
+          </Link>
         </Box>
         <Box>
           {selected ? (
-            <Button onClick={() => checkChanged(false)}>解除</Button>
+            <Button
+              w={150}
+              onClick={() => checkChanged(false)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {isHovered ? <Text>解除</Text> : <Text>フォロー中</Text>}
+            </Button>
           ) : (
-            <Button onClick={() => checkChanged(true)}>選択</Button>
+            <Button
+              w={150}
+              onClick={() => checkChanged(true)}
+              colorScheme="blue"
+            >
+              +フォロー
+            </Button>
           )}
         </Box>
-        <Box flexBasis={10}>
-          {isChecking && (
-            <Spinner size="xs" />
-          )}
-        </Box>
+        <Box flexBasis={10}>{isChecking && <Spinner size="xs" />}</Box>
       </Flex>
-    </Box>
+    </Container>
   );
 };

@@ -1,5 +1,6 @@
 /* eslint-disable no-tabs */
 import fs from 'fs/promises'
+import { rmSync, writeFileSync } from 'fs'
 import EventEmitter from 'events'
 
 export const parseAACFile = async (path: string) => {
@@ -18,15 +19,23 @@ type Metadata = {
 export class AACBuilder {
   queue: Buffer[] = []
   finish = false
-  initialized = false;
+  error: unknown | null = null;
   isProcessing = false;
   outputPath: string
   tempPath: string
   event = new EventEmitter()
+  fd: Promise<fs.FileHandle>;
 
   constructor(outputPath: string, metadata?: Metadata) {
     this.outputPath = outputPath
     this.tempPath = outputPath + '.temp'
+
+    // wipe old file and check privilege
+    rmSync(this.tempPath, { force: true })
+    rmSync(this.outputPath, { force: true })
+    writeFileSync(this.tempPath, "");
+
+    this.fd = fs.open(this.tempPath, 'w');
   }
 
   // add chunk to queue
@@ -37,50 +46,49 @@ export class AACBuilder {
     }
   }
 
-  async initializeFile() {
-    await fs.rm(this.tempPath, { force: true })
-    await fs.rm(this.outputPath, { force: true })
-    this.initialized = true;
-  }
 
   async processQueue() {
-
-    if (this.queue.length === 0 && this.finish) {
-      this.event.emit("finish");
-      this.isProcessing = false;
-      return;
-    }
-
-    if (this.queue.length === 0) {
-      this.isProcessing = false;
-      return;
-    }
-
-    this.isProcessing = true;
-
-    const buffer = this.queue.shift()
-    if (!this.initialized) {
-      await this.initializeFile();
-    }
-    if (buffer != null) {
-      const flames = seekFlame(buffer, 0)
-      for (const flame of flames) {
-        const dest = Buffer.alloc(flame.length)
-        buffer.copy(dest, 0, flame.offset, flame.offset + flame.length)
-        await fs.appendFile(this.tempPath, dest)
+    try {
+      if (this.queue.length === 0 && this.finish) {
+        this.event.emit("finish");
+        this.isProcessing = false;
+        return;
       }
+
+      if (this.queue.length === 0) {
+        this.isProcessing = false;
+        return;
+      }
+
+      this.isProcessing = true;
+
+      const buffer = this.queue.shift()
+      if (buffer != null) {
+        const flames = seekFlame(buffer, 0)
+        for (const flame of flames) {
+          await (await this.fd).write(buffer, flame.offset, flame.length)
+        }
+      }
+      setImmediate(() => this.processQueue());
+    } catch (e) {
+      console.error(e)
+      this.error = e;
+      this.event.emit("error", e);
     }
-    setImmediate(() => this.processQueue());
   }
 
   async finalize(): Promise<void> {
     this.finish = true
+    
+    if (this.error) throw this.error;
 
     if (this.isProcessing) {
-      await new Promise((resolve) => {
+      await new Promise((resolve, reject) => {
         this.event.once("finish", resolve);
+        this.event.once("error", reject);
       })
     }
+    await (await this.fd).close();
     await fs.rename(this.tempPath, this.outputPath)
   }
 }

@@ -4,16 +4,24 @@ export type AppStateType = {
   lastUpdated?: string;
   showList: Show[];
   downloadTarget: DownloadTargets;
+  downloadDirectory: string;
+  selectedGenre?: string;
+  isFilteredDownloadTarget?: boolean;
 }
 
 export type DownloadTargets = {
   [key: string]: boolean;
 }
 
-export function initialAppState(): AppStateType {
+export function initialAppState({
+  downloadDirectory,
+}: {
+  downloadDirectory: string;
+}): AppStateType {
   return {
     showList: [],
     downloadTarget: {},
+    downloadDirectory,
   }
 }
 
@@ -22,6 +30,7 @@ export type DownloadQueueItem = {
   episode: Episode;
   finished: boolean,
   hasError: boolean,
+  updatedAt?: string,
   downloading: boolean,
 }
 

@@ -1,6 +1,7 @@
 import {
   Box,
   CloseButton,
+  Container,
   Flex,
   IconButton,
   Progress,
@@ -29,22 +30,26 @@ export const QueueItemContainer = ({ item }: Props) => {
   // cancel and remove from queue
   const onClickRemove = () => {
     window.Main.send("downloadCancel", item.episode.id);
-  }
+  };
 
   return (
-    <Box>
+    <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <Box flexGrow={1}>
           <Text fontSize="xs">{item.show.name}</Text>
           <Text>{item.episode.title}</Text>
           <Text>{item.episode.onAirDate}</Text>
-          {item.downloading && !item.finished && (
-            // downloading progress
-            <Flex alignItems="center">
-              <Text>ダウンロード中</Text>
-              <Progress value={progress} flexGrow={1} marginX={3} />
-            </Flex>
-          )}
+          {item.downloading &&
+            !item.finished &&
+            (item.hasError ? (
+              <Text color="red.300">エラー</Text>
+            ) : (
+              // downloading progress
+              <Flex alignItems="center">
+                <Text>ダウンロード中</Text>
+                <Progress value={progress} flexGrow={1} marginX={3} />
+              </Flex>
+            ))}
         </Box>
         <Box>
           {
@@ -53,6 +58,6 @@ export const QueueItemContainer = ({ item }: Props) => {
           }
         </Box>
       </Flex>
-    </Box>
+    </Container>
   );
 };

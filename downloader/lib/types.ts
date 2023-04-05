@@ -6,6 +6,7 @@ export interface Show {
   detailUrl: string
   thumbnailUrl: string
   onAirDate: string
+  siteUrl: string
 }
 
 export interface ShowDetailType {

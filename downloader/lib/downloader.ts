@@ -28,28 +28,23 @@ export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
     responseType: 'text',
     cancelToken: cancelSource.token
   })
-  const nextUrl = data.split('\n').filter(x => x.match('m3u8'))[0]
-  if (!nextUrl) {
-    console.warn('invalid m3u8 file')
-    return null
-  }
-  const nextUrlAbs = new URL(nextUrl, url).href
+  
+  const nextUrl = data.split('\n').filter(x => !x.startsWith('#') && x.match('m3u8'))[0]
+  const urls = data.split('\n').filter(x => !x.startsWith('#') && x.match('aac')).map(x => new URL(x, url).href)
+  const keyRow = data.split('\n').find(x => x.startsWith('#EXT-X-KEY'))
+  const mediaSequenceRow = data.split('\n').find(x => x.startsWith('#EXT-X-MEDIA-SEQUENCE'))
 
-  // download second m3u8 file
-  const { data: nextData } = await client.get<string>(nextUrlAbs, {
-    responseType: 'text',
-    cancelToken: cancelSource.token
-  })
-  const urls = nextData.split('\n').filter(x => !x.startsWith('#') && x.match('aac')).map(x => new URL(x, url).href)
-  const keyRow = nextData.split('\n').find(x => x.startsWith('#EXT-X-KEY'))
-  const mediaSequenceRow = nextData.split('\n').find(x => x.startsWith('#EXT-X-MEDIA-SEQUENCE'))
+  if (nextUrl && !urls.length) {
+    console.log('follow next url: ', nextUrl);
+    return downloadByM3U8(new URL(nextUrl, url).href, options);
+  }
+
+  // download m3u8 files
   if (!mediaSequenceRow) throw new Error('no media sequence found')
   const mediaSequence = parseInt(mediaSequenceRow.split(':')[1])
 
   // download key file
-
   if (!keyRow) throw new Error('no key found')
-  
   const keyUrl = extractKeyUrl(keyRow)
   if (!keyUrl) throw new Error('invalid key row')
 
