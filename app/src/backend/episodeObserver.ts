@@ -86,10 +86,15 @@ class EpisodeChecker {
     try {
       eventBus.emit(EventBusType.episodeChecking, this.show.id, true);
 
+      if (!this.show.detailUrl) {
+        console.log("no detail url:", this.show.name);
+        return;
+      }
+
       const showDetail = await getShowDetail(this.show.detailUrl);
       const { episodes } = showDetail
       // add episodes to this.episodes if not exist
-      for (const episode of episodes) {
+      for (const episode of episodes.filter(x=> x.url)) {
         const episodeExists = this.episodes.some(
           e => e.id === episode.id
         );

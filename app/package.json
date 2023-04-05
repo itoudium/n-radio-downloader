@@ -1,8 +1,8 @@
 {
   "name": "n-radio-downloader",
   "productName": "n-radio-downloader",
-  "version": "0.0.0",
-  "description": "My Electron application description",
+  "version": "0.0.1",
+  "description": "NHK Radio Downloader",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
