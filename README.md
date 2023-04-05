@@ -44,8 +44,8 @@ npm run start -w app
 ## Build the Electron app
 
 ```bash
-npm run make:win -w downloader
-npm run make:mac -w downloader
+npm run make:win -w app
+npm run make:mac -w app
 ```
 
 
