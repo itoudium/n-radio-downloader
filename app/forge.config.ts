@@ -12,6 +12,20 @@ const config: ForgeConfig = {
   packagerConfig: {},
   rebuildConfig: {},
   makers: [new MakerZIP({}, ['darwin', 'win32']), new MakerRpm({}), new MakerDeb({})],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      platforms: ['darwin', 'win32'],
+      config: {
+        repository: {
+          owner: 'itoudium',
+          name: 'n-radio-downloader'
+        },
+        prerelease: true,
+        authToken: process.env.GITHUB_TOKEN,
+      }
+    }
+  ],
   plugins: [
     new WebpackPlugin({
       mainConfig,

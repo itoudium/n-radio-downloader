@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="n-radio-downloader">
+	<main>
+		<h1>n-radio-downloader</h1>
+
+		<img src="/image.png" height="300" alt="イメージ画像" class="top-image">
+
+		<p>
+			NHKラジオ（らじるらじる）の番組を保存するPC用アプリです。<br>
+			聞き逃し配信のWebページを参照し、公開されている番組を自動的にダウンロードします。<br>
+			本アプリは非公式で、動作保証はありません。<br>
+			公式の利用規約をご確認の上、ご利用ください。
+		</p>
+		<section>
+			<h2>機能</h2>
+			<ul>
+				<li>ダウンロードしたい番組をフォローします</li>
+				<li>自動的に更新をチェックします</li>
+				<li>自動的にダウンロードします</li>
+				<li>聞き逃し配信ページに公開されている限り、過去に遡ってダウンロードします</li>
+				<li>ダウンロード先のフォルダを設定できます</li>
+				<li>プレイヤー機能はありません</li>
+				<li>リアルタイム録音ではありません</li>
+			</ul>
+		</section>
+
+		<section>
+			<h2>ダウンロード</h2>
+			<p>
+				<a href="https://github.com/itoudium/n-radio-downloader/releases/latest">Releases</a> から最新版をダウンロードしてください。
+			</p>
+			<p>
+				対応環境: Windows x64, macOS arm64
+			</p>
+		</section>
+		
+
+		<footer>
+			<p>
+				ソースコード: <a href="https://github.com/itoudium/n-radio-downloader">GitHub</a>
+			</p>
+			<p>
+				author: <a href="https://github.com/itoudium">itoudium</a>
+			</p>
+		</footer>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: auto;
+		padding: 1.5rem;
+		max-width: 60ch;
+		text-align: center;
+	}
+	h1 {
+		font-size: 3rem;
+		font-weight: 800;
+		margin: 0;
+	}
+
+	h2 {
+		font-size: 1.7rem;
+		font-weight: 800;
+		margin: 0;
+		margin-top: 40px;
+	}
+
+	ul {
+		max-width: 400px;
+		margin: 20px;
+		text-align: left;
+	}
+
+	.top-image {
+		margin: 40px 10px;
+	}
+
+	footer {
+		margin-top: 72px;
+	}
+	
+</style>

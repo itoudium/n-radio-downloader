@@ -9,7 +9,7 @@ import { FlameContainer } from "./components/FlameContainer";
 import { AppProvider } from "@hooks/appHook";
 
 const config: ThemeConfig = {
-  initialColorMode: "system",
+  initialColorMode: "light",
   useSystemColorMode: false,
 };
 
