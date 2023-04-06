@@ -6,22 +6,24 @@ import Layout from '../layouts/Layout.astro';
 	<main>
 		<h1>n-radio-downloader</h1>
 
-		<img src="./image.png" height="300" alt="イメージ画像" class="top-image">
+		<img src="./image.png" width="1600" height="1200" alt="イメージ画像" class="top-image">
 
 		<p>
-			NHKラジオ（らじるらじる）の番組を保存するPC用アプリです。<br>
-			聞き逃し配信のWebページを参照し、公開されている番組を自動的にダウンロードします。<br>
+			NHKラジオ（らじるらじる）の番組をファイルに保存するPC用アプリです。<br>
+			好きな番組をフォローすると、番組を自動的にチェック、ダウンロード。<br>
 			本アプリは非公式で、動作保証はありません。<br>
 			公式の利用規約をご確認の上、ご利用ください。
 		</p>
 		<section>
 			<h2>機能</h2>
 			<ul>
-				<li>ダウンロードしたい番組をフォローします</li>
-				<li>自動的に更新をチェックします</li>
-				<li>自動的にダウンロードします</li>
+				<li>ダウンロードしたい番組をフォローできます</li>
+				<li>聞き逃し配信ページの情報を自動的にチェックします</li>
 				<li>聞き逃し配信ページに公開されている限り、過去に遡ってダウンロードします</li>
+				<li>音声ストリーミングをダウンロードしてファイルに保存します</li>
+				<li>拡張子は AAC となります</li>
 				<li>ダウンロード先のフォルダを設定できます</li>
+				<li>ダウンロード状況を追跡</li>
 				<li>プレイヤー機能はありません</li>
 				<li>リアルタイム録音ではありません</li>
 			</ul>
@@ -30,7 +32,11 @@ import Layout from '../layouts/Layout.astro';
 		<section>
 			<h2>ダウンロード</h2>
 			<p>
-				<a href="https://github.com/itoudium/n-radio-downloader/releases/latest">Releases</a> から最新版をダウンロードしてください。
+				<a href="https://github.com/itoudium/n-radio-downloader/releases/latest">Releases</a> の <strong>Assets</strong> から最新版をダウンロードしてください。
+			</p>
+			<p>
+				Zipファイルを展開して、好きな場所に配置して実行してください。<br>
+				Macの場合、セキュリティ・プライバシーの警告が出ます。
 			</p>
 			<p>
 				対応環境: Windows x64, macOS arm64
@@ -77,6 +83,9 @@ import Layout from '../layouts/Layout.astro';
 
 	.top-image {
 		margin: 40px 10px;
+		height: auto;
+		max-width: calc(100% - 20px);
+		border-radius: 10px;
 	}
 
 	footer {
