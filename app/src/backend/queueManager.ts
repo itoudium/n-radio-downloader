@@ -88,7 +88,7 @@ export class QueueManager {
           await fs.mkdir(outputDir, { recursive: true });
           await downloadByM3U8(queueItem.episode.url, {
             outputDir,
-            fileName: `${queueItem.episode.id} ${escapeFileName(queueItem.episode.title)}`,
+            fileName: `${queueItem.episode.id} ${escapeFileName(queueItem.episode.title)} ${escapeFileName(queueItem.episode.onAirDate)}`,
             progressFn: (progress) => {
               eventBus.emit(EventBusType.downloadProgress, queueItem.episode.id, progress);
             },
