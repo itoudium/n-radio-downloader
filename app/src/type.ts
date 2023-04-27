@@ -30,6 +30,7 @@ export type DownloadQueueItem = {
   episode: Episode;
   finished: boolean,
   hasError: boolean,
+  retryCount?: number,
   updatedAt?: string,
   downloading: boolean,
 }

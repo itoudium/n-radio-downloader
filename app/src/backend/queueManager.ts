@@ -53,7 +53,7 @@ export class QueueManager {
   private removeEpisode(episodeId: string) {
     this.queue = this.queue.filter(e => e.episode.id !== episodeId);
     this.saveQueue();
-    eventBus.emit(EventBusType.queueUpdated, this.queue); 
+    eventBus.emit(EventBusType.queueUpdated, this.queue);
   }
 
   private addEpisode(episode: Episode, show: Show) {
@@ -74,15 +74,29 @@ export class QueueManager {
     }
   }
 
+  static MAX_RETRY_COUNT = 5;
+  static RETRY_UNIT_TIME = 60 * 1000;
+
+  private static canRetry(item: DownloadQueueItem): boolean {
+    if (item.finished || !item.hasError || !item.updatedAt || item.retryCount > this.MAX_RETRY_COUNT) {
+      return false;
+    }
+    const lastTryTime = new Date(item.updatedAt).getTime();
+    const now = new Date().getTime();
+    const retryMargin = item.retryCount ** 2 * this.RETRY_UNIT_TIME;
+    return now - lastTryTime > retryMargin;
+  }
+
   private async worker() {
     // observe queue with infinite loop and download episode
     while (true) {
-      const queueItem = this.queue.find(e => !e.finished && !e.hasError);
+      const queueItem = this.queue.find(e => !e.finished && (!e.hasError || QueueManager.canRetry(e)));
       if (queueItem) {
         // download episode
         try {
           console.log(`Downloading ... ${queueItem.episode.id} ${queueItem.episode.title}`);
           queueItem.downloading = true;
+          queueItem.hasError = false;
           eventBus.emit(EventBusType.queueUpdated, this.queue);
           const outputDir = path.join(this.baseDir, escapeFileName(queueItem.show.name));
           await fs.mkdir(outputDir, { recursive: true });
@@ -105,6 +119,7 @@ export class QueueManager {
         } catch (e) {
           // set hasError to true
           queueItem.hasError = true;
+          queueItem.retryCount = (queueItem.retryCount || 0) + 1;
           console.log(`download error : ${queueItem.episode.id} ${queueItem.episode.title}`)
           console.error(e);
         } finally {
