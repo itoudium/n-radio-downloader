@@ -29,16 +29,27 @@ import Layout from '../layouts/Layout.astro';
 
 		<section>
 			<h2>機能</h2>
+
+			<strong>チェック</strong>
 			<ul>
-				<li>ダウンロードしたい番組をフォローできます</li>
-				<li>聞き逃し配信ページの情報を自動的にチェックします</li>
-				<li>聞き逃し配信ページに公開されている限り、過去に遡ってダウンロードします</li>
-				<li>音声ストリーミングをダウンロードしてファイルに保存します</li>
+				<li>ダウンロードしたい番組をフォロー</li>
+				<li>フォローした番組の新着エピソードを自動ダウンロード</li>
+				<li>新着エピソードが無いか自動チェック</li>
+			</ul>
+			<strong>ダウンロード</strong>
+			<ul>
 				<li>拡張子は AAC となります</li>
-				<li>ダウンロード先のフォルダを設定できます</li>
+				<li>「設定」からダウンロード先のフォルダを設定できます</li>
 				<li>ダウンロード状況を追跡</li>
+			</ul>
+			
+			<strong>しくみ</strong>
+			<ul>
+				<li>「聞き逃し配信」ページから情報を取得</li>
+				<li>聞き逃し配信で公開されている限り、過去に遡ってダウンロード</li>
 				<li>プレイヤー機能はありません</li>
 				<li>リアルタイム録音ではありません</li>
+				<li>音声ストリーミングをダウンロードしてファイルに保存します</li>
 			</ul>
 		</section>
 
@@ -56,12 +67,12 @@ import Layout from '../layouts/Layout.astro';
 		<section>
 			<h2>インストール</h2>
 			<p>
-				ダウンロードページにアクセスして、最新バージョンの Assets から、環境に合ったファイルをダウンロードしてください。
+				GitHubのダウンロードページにアクセスして、最新バージョンの Assets から、環境に合ったファイルをダウンロードしてください。
 			</p>
 			<a class="download-link" href="https://github.com/itoudium/n-radio-downloader/releases/latest">ダウンロード</a>
 			<p>
 				Zipファイルを展開して、好きな場所に配置して実行してください。<br>
-				Macの場合、セキュリティ・プライバシーの警告が出ます。
+				OSによってセキュリティ・プライバシーの警告が表示される場合があります
 			</p>
 			<p>
 				対応環境: Windows x64, macOS arm64
@@ -114,8 +125,9 @@ import Layout from '../layouts/Layout.astro';
 
 	ul {
 		max-width: 400px;
-		margin: 20px;
+		margin: auto;
 		text-align: left;
+		padding: 20px;
 	}
 
 	.top-image {
