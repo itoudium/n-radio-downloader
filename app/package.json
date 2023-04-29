@@ -1,7 +1,7 @@
 {
   "name": "n-radio-downloader",
-  "productName": "n-radio-downloader",
-  "version": "0.0.1",
+  "productName": "nReceiver",
+  "version": "1.0.0",
   "description": "NHK Radio Downloader",
   "main": ".webpack/main",
   "scripts": {
@@ -11,7 +11,9 @@
     "package:mac": "electron-forge package --platform=darwin --arch=arm64",
     "make:win": "electron-forge make --platform=win32 --arch=x64",
     "make:mac": "electron-forge make --platform=darwin --arch=arm64",
-    "publish": "electron-forge publish",
+    "publish:win": "electron-forge publish --platform=win32 --arch=x64",
+    "publish:mac": "electron-forge publish --platform=darwin --arch=arm64",
+    "publish": "npm run publish:win && npm run publish:mac",
     "lint": "eslint --ext .ts,.tsx ."
   },
   "keywords": [],

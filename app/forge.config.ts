@@ -9,7 +9,9 @@ import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: './src/icons/nReceiver',
+  },
   rebuildConfig: {},
   makers: [new MakerZIP({}, ['darwin', 'win32']), new MakerRpm({}), new MakerDeb({})],
   publishers: [

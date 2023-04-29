@@ -8,10 +8,10 @@ export const FlameContainer: React.FC = () => {
     <Flex direction="column" overflow="hidden" height="100vh">
       <Header />
       <Flex overflow="hidden" flex="1 0">
-        <Box overflow="scroll" width="50%">
+        <Box overflowY="scroll" width="50%">
           <ShowListContainer />
         </Box>
-        <Box overflow="scroll" width="50%">
+        <Box overflowY="scroll" width="50%">
           <QueueContainer />
         </Box>
       </Flex>
