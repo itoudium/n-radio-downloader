@@ -2,18 +2,31 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="n-radio-downloader">
+<Layout title="nReceiver">
 	<main>
-		<h1>n-radio-downloader</h1>
 
-		<img src="./image.png" width="1600" height="1200" alt="イメージ画像" class="top-image">
+		<section>
+			<img src="./nReceiver.png" width="64" height="64" alt="アイコン" aria-hidden="true" class="icon">
+			<h1>nReceiver</h1>
+			<p class="sub">エヌ・レシーバ</p>
+		</section>
 
-		<p>
-			NHKラジオ（らじるらじる）の番組をファイルに保存するPC用アプリです。<br>
-			好きな番組をフォローすると、番組を自動的にチェック、ダウンロード。<br>
-			本アプリは非公式で、動作保証はありません。<br>
-			公式の利用規約をご確認の上、ご利用ください。
-		</p>
+		<section>
+
+			<p>
+				NHKラジオ（らじるらじる）の番組をファイルに保存するPC用アプリです。<br>
+				好きな番組をフォローすると、番組を自動的にチェック、ダウンロード。<br>
+				本アプリは非公式で、動作保証はありません。<br>
+				公式の利用規約をご確認の上、ご利用ください。
+			</p>
+
+			<a class="download-link" href="https://github.com/itoudium/n-radio-downloader/releases/latest">ダウンロード</a>
+			
+			<img src="./image.png" width="1600" height="1200" alt="イメージ画像" class="top-image">
+			
+		</section>
+		
+
 		<section>
 			<h2>機能</h2>
 			<ul>
@@ -30,10 +43,22 @@ import Layout from '../layouts/Layout.astro';
 		</section>
 
 		<section>
+			<h2>with Jellyfin</h2>
+			<p>
+				オープンソースのメディアサーバ <strong>Jellyfin</strong> と組み合わせると便利です。<br />
+				Jellyfin を使えば、ダウンロードした音声ファイルを自動的に検出してメディアライブラリを管理できます。そして、ライブラリをいろいろなデバイスから再生できます。<br />
+			</p>
+			<a href="https://jellyfin.org/" target="_blank">
+				<img src="./jellyfin.png" width="500" height="167" alt="jellyfin" class="jellyfin-logo" />
+			</a>
+		</section>
+
+		<section>
 			<h2>インストール</h2>
 			<p>
-				<a href="https://github.com/itoudium/n-radio-downloader/releases/latest">Releases</a> の最新版の <strong>Assets</strong> から、環境に合ったファイルをダウンロードしてください。
+				ダウンロードページにアクセスして、最新バージョンの Assets から、環境に合ったファイルをダウンロードしてください。
 			</p>
+			<a class="download-link" href="https://github.com/itoudium/n-radio-downloader/releases/latest">ダウンロード</a>
 			<p>
 				Zipファイルを展開して、好きな場所に配置して実行してください。<br>
 				Macの場合、セキュリティ・プライバシーの警告が出ます。
@@ -64,15 +89,27 @@ import Layout from '../layouts/Layout.astro';
 	}
 	h1 {
 		font-size: 3rem;
-		font-weight: 800;
 		margin: 0;
+		font-family: 'Varela Round', sans-serif;
+	}
+
+	.sub {
+		font-size: 1rem;
+		margin: 0;
+	}
+
+	.icon {
+		width: 64px;
+		height: 64px;
+		margin: 0 auto;
+		border-radius: 10px;
 	}
 
 	h2 {
 		font-size: 1.7rem;
 		font-weight: 800;
 		margin: 0;
-		margin-top: 40px;
+		margin-top: 60px;
 	}
 
 	ul {
@@ -86,6 +123,23 @@ import Layout from '../layouts/Layout.astro';
 		height: auto;
 		max-width: calc(100% - 20px);
 		border-radius: 10px;
+	}
+
+	.download-link {
+		display: inline-block;
+		margin: 20px 10px;
+		padding: 10px 40px;
+		background-color: #0078d7;
+		color: white;
+		text-decoration: none;
+		height: auto;
+		max-width: calc(100% - 20px);
+		border-radius: 10px;
+	}
+
+	.jellyfin-logo {
+		max-width: 120px;	
+		height: auto;
 	}
 
 	footer {
