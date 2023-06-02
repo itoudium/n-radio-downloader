@@ -1,6 +1,6 @@
 # nReceiver (n-radio-downloader)
 
-[Website](https://itoudium.github.io/n-radio-downloader/)
+[Website](https://n-receiver.itod.dev/)
 
 Save NHK Radio shows locally.
 
