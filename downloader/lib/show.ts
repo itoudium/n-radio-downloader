@@ -147,7 +147,6 @@ export const getShowDetail = async (
   detailUrl: string
 ): Promise<ShowDetailType> => {
   const { data } = await axios.get<ShowDetailResponse>(detailUrl);
-  console.log(data);
   return {
     name: data.title,
     detail: data.series_description,
