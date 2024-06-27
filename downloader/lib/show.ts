@@ -1,96 +1,162 @@
-import axios from 'axios'
-import { type Show, type ShowDetailType } from './types'
+import axios from "axios";
+import { type Show, type ShowDetailType } from "./types";
 
-interface ProgramListResponse {
-  genre_list: GenreType[]
-}
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleepTime = 500;
 
 interface GenreType {
   // name of genere
-  genre: string
+  genre: string;
   // programs of genere
-  data_list: ProgramType[]
+  data_list: ProgramType[];
 }
 
 interface ProgramType {
   // url of detail json
-  detail_json: string // "https://www.nhk.or.jp/radioondemand/json/0442/bangumi_0442_01.json"
-  media_code: string
+  detail_json: string; // "https://www.nhk.or.jp/radioondemand/json/0442/bangumi_0442_01.json"
+  media_code: string;
   // onAir date by human readable string
-  onair_date: string
-  open_time: string
-  program_name: string
-  program_name_kana: string
-  site_id: string
-  corner_id: string
-  corner_name: string
-  start_time: string
+  onair_date: string;
+  open_time: string;
+  program_name: string;
+  program_name_kana: string;
+  site_id: string;
+  corner_id: string;
+  corner_name: string;
+  start_time: string;
   // thumbnail image url
-  thumbnail_p: string
-  update_time: string
+  thumbnail_p: string;
+  update_time: string;
 }
 
-const PROGRAM_LIST_URL = 'https://www.nhk.or.jp/radioondemand/json/index_v3/index_genre.json'
+type GenresResponseType = {
+  genres: {
+    genre: string;
+    name: string;
+  }[];
+};
 
-const getSiteUrl = (id: string) => {
-  return `https://www.nhk.or.jp/radio/ondemand/detail.html?p=${id}`
+type SeriesResponseType = {
+  corner_name: string;
+  id: number;
+  onair_date: string;
+  title: string;
+  thumbnail_url: string;
+  series_site_id: string;
+  corner_site_id: string;
+}
+
+type SeriesListResponseType = {
+  series: SeriesResponseType[];
+};
+
+type CornersListResponseType = {
+  corners?: SeriesResponseType[];
+}
+
+async function getGenreList() {
+  const { data } = await axios.get<GenresResponseType>(
+    "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series/genres"
+  );
+
+  return data
+}
+
+const SERIES_LIST_URL =
+  "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?genre=";
+const getSeriesListUrl = (genre: string) => `${SERIES_LIST_URL}${genre}`;
+
+async function getSeriesList(genre: string) {
+  const { data } = await axios.get<SeriesListResponseType>(
+    getSeriesListUrl(genre)
+  );
+
+  return data
+}
+
+async function getSeriesCornersList(series_site_id: string) {
+  const { data } = await axios.get<CornersListResponseType>(
+    `https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=${series_site_id}`
+  );
+
+  return data
+}
+
+const hasCorners = ({corner_site_id}: {corner_site_id: string}) => corner_site_id == "";
+
+const getSiteUrl = ({series_site_id, corner_site_id}: {series_site_id: string, corner_site_id: string}) => {
+  return hasCorners({corner_site_id}) ? `https://www.nhk.or.jp/radio/ondemand/corners.html?p=${series_site_id}` :
+    `https://www.nhk.or.jp/radio/ondemand/detail.html?p=${series_site_id}_${corner_site_id}`;
+};
+
+const getDetailUrl = ({series_site_id, corner_site_id}: {series_site_id: string, corner_site_id: string}) => {
+  return `https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=${series_site_id}&corner_site_id=${corner_site_id}`
 }
 
 export const getShowList = async (): Promise<Show[]> => {
-  const { data } = await axios.get<ProgramListResponse>(PROGRAM_LIST_URL)
-  return data.genre_list.flatMap(genre => {
-    return genre.data_list.map(program => {
-      const id = [program.site_id, program.corner_id].filter(x=> x).join("_");
-      const name = [program.program_name, program.corner_name].filter(x=> x).join(" ");
-      return ({
-        id,
-        name,
-        genre: genre.genre,
-        detailUrl: program.detail_json,
-        thumbnailUrl: program.thumbnail_p,
-        onAirDate: program.onair_date,
-        siteUrl: getSiteUrl(id),
-      })
-    })
-  })
-}
+  const result: Show[] = [];
+  const genreListRes = await getGenreList();
+  for (const genre of genreListRes.genres) {
+    const seriesListRes = await getSeriesList(genre.genre);
+    for (const series of seriesListRes.series) {
+      if (hasCorners(series)) {
+        const cornersListRes = await getSeriesCornersList(series.series_site_id);
+        for (const corner of cornersListRes.corners ?? []) {
+          result.push({
+            id: corner.id.toString(),
+            name: corner.title,
+            genre: genre.name,
+            detailUrl: getDetailUrl({series_site_id: series.series_site_id, corner_site_id: corner.corner_site_id}),
+            thumbnailUrl: corner.thumbnail_url,
+            onAirDate: corner.onair_date,
+            siteUrl: getSiteUrl(corner),
+          });
+        }
+      } else {
+        result.push({
+          id: series.id.toString(),
+          name: series.title,
+          genre: genre.name,
+          detailUrl: getDetailUrl({series_site_id: series.series_site_id, corner_site_id: series.corner_site_id}),
+          thumbnailUrl: series.thumbnail_url,
+          onAirDate: series.onair_date,
+          siteUrl: getSiteUrl(series),
+        });
+      }
+      await sleep(sleepTime);
+    }
+  }
+
+  return result;
+};
 
 interface ShowDetailResponse {
-  main: {
-    program_name: string
-    schedule: string
-    site_detail: string
-    detail_list: Array<{
-      file_list: Array<{
-        file_title: string
-        file_title_sub: string
-        onair_date: string
-        open_time: string
-        close_time: string
-        file_id: string
-        // url of the m3u8 file
-        file_name: string
-      }>
-      headline_id: string
-    }>
-  }
+  episodes: {
+    id: number,
+    program_title: string,
+    program_sub_title: string,
+    stream_url: string,
+    onair_date: string,
+  }[];
+  title: string,
+  schedule: string,
+  series_description: string,
 }
 
-export const getShowDetail = async (detailUrl: string): Promise<ShowDetailType> => {
-  const { data } = await axios.get<ShowDetailResponse>(detailUrl)
+export const getShowDetail = async (
+  detailUrl: string
+): Promise<ShowDetailType> => {
+  const { data } = await axios.get<ShowDetailResponse>(detailUrl);
+  console.log(data);
   return {
-    name: data.main.program_name,
-    detail: data.main.site_detail,
-    schedule: data.main.schedule,
-    episodes: data.main.detail_list.flatMap(detail => {
-      return detail.file_list.splice(0, 1).map(file => {
-        return {
-          id: detail.headline_id,
-          title: file.file_title,
-          onAirDate: file.onair_date,
-          url: file.file_name
-        }
-      })
-    })
-  }
-}
+    name: data.title,
+    detail: data.series_description,
+    schedule: data.schedule,
+    episodes: data.episodes.map(episode => ({
+      id: episode.id.toString(),
+      title: episode.program_title,
+      onAirDate: episode.onair_date,
+      url: episode.stream_url,
+    })),
+  };
+};
