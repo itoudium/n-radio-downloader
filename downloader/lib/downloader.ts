@@ -17,7 +17,7 @@ interface DownloadOptions {
   canceler?: (cancelable: CancelTokenSource) => void
 }
 
-export const downloadByM3U8 = async (url: string, options: DownloadOptions) => {
+export const downloadByM3U8 = async (url: string, options: DownloadOptions): Promise<void> => {
   const cancelSource = client.CancelToken.source()
   if (options.canceler) {
     options.canceler(cancelSource);
