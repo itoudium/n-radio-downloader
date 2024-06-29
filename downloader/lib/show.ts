@@ -82,14 +82,14 @@ async function getSeriesCornersList(series_site_id: string) {
   return data
 }
 
-const hasCorners = ({corner_site_id}: {corner_site_id: string}) => corner_site_id == "";
+const hasCorners = ({ corner_site_id }: { corner_site_id: string }) => corner_site_id == "";
 
-const getSiteUrl = ({series_site_id, corner_site_id}: {series_site_id: string, corner_site_id: string}) => {
-  return hasCorners({corner_site_id}) ? `https://www.nhk.or.jp/radio/ondemand/corners.html?p=${series_site_id}` :
+const getSiteUrl = ({ series_site_id, corner_site_id }: { series_site_id: string, corner_site_id: string }) => {
+  return hasCorners({ corner_site_id }) ? `https://www.nhk.or.jp/radio/ondemand/corners.html?p=${series_site_id}` :
     `https://www.nhk.or.jp/radio/ondemand/detail.html?p=${series_site_id}_${corner_site_id}`;
 };
 
-const getDetailUrl = ({series_site_id, corner_site_id}: {series_site_id: string, corner_site_id: string}) => {
+const getDetailUrl = ({ series_site_id, corner_site_id }: { series_site_id: string, corner_site_id: string }) => {
   return `https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=${series_site_id}&corner_site_id=${corner_site_id}`
 }
 
@@ -102,29 +102,40 @@ export const getShowList = async (): Promise<Show[]> => {
       if (hasCorners(series)) {
         const cornersListRes = await getSeriesCornersList(series.series_site_id);
         for (const corner of cornersListRes.corners ?? []) {
-          result.push({
-            id: corner.id.toString(),
-            name: corner.title,
-            genre: genre.name,
-            detailUrl: getDetailUrl({series_site_id: series.series_site_id, corner_site_id: corner.corner_site_id}),
-            thumbnailUrl: corner.thumbnail_url,
-            onAirDate: corner.onair_date,
-            siteUrl: getSiteUrl(corner),
-          });
+          const exists = result.find(({ id }) => id === corner.id.toString());
+          if (exists) {
+            exists.genre = exists.genre.concat(",", genre.name);
+          } else {
+            result.push({
+              id: corner.id.toString(),
+              name: corner.title,
+              corderName: corner.corner_name,
+              genre: genre.name,
+              detailUrl: getDetailUrl({ series_site_id: series.series_site_id, corner_site_id: corner.corner_site_id }),
+              thumbnailUrl: corner.thumbnail_url,
+              onAirDate: corner.onair_date,
+              siteUrl: getSiteUrl(corner),
+            });
+          }
         }
       } else {
-        result.push({
-          id: series.id.toString(),
-          name: series.title,
-          genre: genre.name,
-          detailUrl: getDetailUrl({series_site_id: series.series_site_id, corner_site_id: series.corner_site_id}),
-          thumbnailUrl: series.thumbnail_url,
-          onAirDate: series.onair_date,
-          siteUrl: getSiteUrl(series),
-        });
+        const exists = result.find(({ id }) => id === series.id.toString());
+        if (exists) {
+          exists.genre = exists.genre.concat(",", genre.name);
+        } else {
+          result.push({
+            id: series.id.toString(),
+            name: series.title,
+            genre: genre.name,
+            detailUrl: getDetailUrl({ series_site_id: series.series_site_id, corner_site_id: series.corner_site_id }),
+            thumbnailUrl: series.thumbnail_url,
+            onAirDate: series.onair_date,
+            siteUrl: getSiteUrl(series),
+          });
+        }
       }
-      await sleep(sleepTime);
     }
+    await sleep(sleepTime);
   }
 
   return result;

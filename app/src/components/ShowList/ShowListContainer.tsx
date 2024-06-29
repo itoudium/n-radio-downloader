@@ -9,6 +9,7 @@ import {
   Spinner,
   Stack,
   StackDivider,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAppContext } from "../../hooks/appHook";
@@ -25,20 +26,23 @@ export const ShowListContainer: React.FC = () => {
     setSelectedGenre,
   } = useAppContext();
 
-  const genreList = new Set<string>(showList?.map((show) => show.genre) ?? []);
+  const genreList = new Set<string>(showList?.flatMap((show) => show.genre.split(",")) ?? []);
 
   const filteredShowList = (showList || []).filter((show) => {
     return (
       (!isFilteredDownloadTarget || (downloadTarget ?? {})[show.id]) &&
-      (!selectedGenre || show.genre === selectedGenre)
+      (!selectedGenre || show.genre.split(",").findIndex((genre) => genre === selectedGenre) !== -1)
     );
   });
 
   if (isLoadingShowList) {
     return (
-      <Flex justifyContent="center">
+      <Stack justifyContent="center" alignItems="center">
+        <Box marginTop={32}>
+          <Text>番組情報を取得中...</Text>
+        </Box>
         <Spinner />
-      </Flex>
+      </Stack>
     );
   }
   return (

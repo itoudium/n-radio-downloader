@@ -10,6 +10,9 @@
     "downloader",
     "web"
   ],
+  "scripts": {
+    "make": "npm run build -w downloader && npm run make -w app"
+  },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.56.0",

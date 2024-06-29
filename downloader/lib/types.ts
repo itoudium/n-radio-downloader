@@ -2,6 +2,7 @@
 export interface Show {
   id: string
   name: string
+  corderName?: string
   genre: string
   detailUrl: string
   thumbnailUrl: string

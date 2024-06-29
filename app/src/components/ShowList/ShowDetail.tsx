@@ -43,8 +43,16 @@ export const ShowDetail = ({ show }: Props) => {
     <Container>
       <Flex justifyContent="space-between" alignItems="center">
         <Box flexGrow={1}>
-          <Text fontSize="xs">{show.genre}</Text>
-          <Text>{show.name}</Text>
+          <Text fontSize="xs" color="gray.500">{show.genre}</Text>
+          
+          {show.corderName ? (
+            <>
+              <Text fontSize="xs" color="gray.500">{show.name}</Text>
+              <Text>{show.corderName}</Text>
+            </>
+          ) : (
+            <Text>{show.name}</Text>
+          )}
           <Link href={show.siteUrl} display="flex" alignItems="center">
             <ExternalLinkIcon marginRight={1} />
             web
