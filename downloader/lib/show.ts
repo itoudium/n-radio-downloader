@@ -42,8 +42,20 @@ type SeriesResponseType = {
   onair_date: string;
   title: string;
   thumbnail_url: string;
+  series_site_id: string | undefined;
+  corner_site_id: string | undefined;
+  url: string | undefined;
+}
+
+type SeriesTransferType = {
+  corner_name: string;
+  id: number;
+  onair_date: string;
+  title: string;
+  thumbnail_url: string;
   series_site_id: string;
   corner_site_id: string;
+  url: string | undefined;
 }
 
 type SeriesListResponseType = {
@@ -51,7 +63,7 @@ type SeriesListResponseType = {
 };
 
 type CornersListResponseType = {
-  corners?: SeriesResponseType[];
+  corners?: SeriesTransferType[];
 }
 
 async function getGenreList() {
@@ -84,7 +96,8 @@ async function getSeriesCornersList(series_site_id: string) {
 
 const hasCorners = ({ corner_site_id }: { corner_site_id: string }) => corner_site_id == "";
 
-const getSiteUrl = ({ series_site_id, corner_site_id }: { series_site_id: string, corner_site_id: string }) => {
+const getSiteUrl = ({ url, series_site_id, corner_site_id }: { url: string | undefined, series_site_id: string, corner_site_id: string }) => {
+  if (url) return url;
   return hasCorners({ corner_site_id }) ? `https://www.nhk.or.jp/radio/ondemand/corners.html?p=${series_site_id}` :
     `https://www.nhk.or.jp/radio/ondemand/detail.html?p=${series_site_id}_${corner_site_id}`;
 };
@@ -98,9 +111,21 @@ export const getShowList = async (): Promise<Show[]> => {
   const genreListRes = await getGenreList();
   for (const genre of genreListRes.genres) {
     const seriesListRes = await getSeriesList(genre.genre);
+    // console.log(JSON.stringify(seriesListRes, null, 2));
     for (const series of seriesListRes.series) {
-      if (hasCorners(series)) {
-        const cornersListRes = await getSeriesCornersList(series.series_site_id);
+      if (!series.series_site_id) {
+        if (series.url) {
+          continue;
+        }
+        series.series_site_id = series.url?.split("/").pop();
+      }
+      if (!series.corner_site_id) {
+        series.corner_site_id = "01"
+      }
+
+      const seriesTransfer = series as SeriesTransferType;
+      if (hasCorners(seriesTransfer)) {
+        const cornersListRes = await getSeriesCornersList(seriesTransfer.series_site_id);
         for (const corner of cornersListRes.corners ?? []) {
           const exists = result.find(({ id }) => id === corner.id.toString());
           if (exists) {
@@ -111,7 +136,7 @@ export const getShowList = async (): Promise<Show[]> => {
               name: corner.title,
               corderName: corner.corner_name,
               genre: genre.name,
-              detailUrl: getDetailUrl({ series_site_id: series.series_site_id, corner_site_id: corner.corner_site_id }),
+              detailUrl: getDetailUrl({ series_site_id: seriesTransfer.series_site_id, corner_site_id: corner.corner_site_id }),
               thumbnailUrl: corner.thumbnail_url,
               onAirDate: corner.onair_date,
               siteUrl: getSiteUrl(corner),
@@ -127,10 +152,10 @@ export const getShowList = async (): Promise<Show[]> => {
             id: series.id.toString(),
             name: series.title,
             genre: genre.name,
-            detailUrl: getDetailUrl({ series_site_id: series.series_site_id, corner_site_id: series.corner_site_id }),
+            detailUrl: getDetailUrl({ series_site_id: seriesTransfer.series_site_id, corner_site_id: seriesTransfer.corner_site_id }),
             thumbnailUrl: series.thumbnail_url,
             onAirDate: series.onair_date,
-            siteUrl: getSiteUrl(series),
+            siteUrl: getSiteUrl(seriesTransfer),
           });
         }
       }
