@@ -1,7 +1,7 @@
 {
   "name": "n-radio-downloader",
   "productName": "nReceiver",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "NHK Radio Downloader",
   "main": ".webpack/main",
   "scripts": {
